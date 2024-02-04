@@ -2,7 +2,7 @@ print("Program Starting!")
 from pinecone import Pinecone, PodSpec
 
 
-OBJECTIVE = "Solve world hunger."
+OBJECTIVE = "Do cutting-edge research on AI as a solution to climate change."
 YOUR_FIRST_TASK = "Develop a task list. Do not include any other text."
 
 from sentence_transformers import SentenceTransformer
@@ -59,7 +59,7 @@ def get_ada_embedding(text):
     return model.encode([text])[0]
 
 def task_creation_agent(objective: str, result: Dict, task_description: str, task_list: List[str]):
-    prompt = f"You are an task creation AI that uses the result of an execution agent to create new tasks with the following objective: {objective}, The last completed task has the result: {result}. This result was based on this task description: {task_description}. These are incomplete tasks: {', '.join(task_list)}. Based on the result, create new tasks to be completed by the AI system that do not overlap with incomplete tasks. Return the tasks as an array."
+    prompt = f"You are an task creation agent that uses the result of an LLM-based execution agent to create new tasks with the following objective: {objective}, The last completed task has the result: {result}. This result was based on this task description: {task_description}. These are incomplete tasks: {', '.join(task_list)}. Based on the result, create new tasks to be completed by the AI system that do not overlap with incomplete tasks. Make sure the tasks can be completed by an LLM agent. Return the tasks as an array."
     while True:
         try:
             response = ChatCompletion.create(
@@ -103,10 +103,14 @@ def prioritization_agent(this_task_id:int):
 
 def execution_agent(objective:str,task: str) -> str:
     #context = context_agent(index="quickstart", query="my_search_query", n=5)
-    context=context_agent(query=objective, n=5)
+    context=context_agent(query=task, n=1)
+    try:
+        context = context[0]
+    except:
+        context = {'task':"No previously completed tasks",'result':"No previous results"}
     print("\n*******RELEVANT CONTEXT******\n")
     print(context)
-    prompt = f"You are an AI who performs one task based on the following objective: {objective}. Your task: {task}\nResponse:"
+    prompt = f"You are an execution agent on a team tasked with the following objective: '{objective}'. The most relevant task that has already been completed was: '{context['task']}'. Here is the result of that task '{context['result']}'. Complete your task: {task}\nResponse:"
     while True:
         try:
             response = ChatCompletion.create(
@@ -128,7 +132,7 @@ def context_agent(query: str, n: int):
     #print("***** RESULTS *****")
     #print(results)
     sorted_results = sorted(results.matches, key=lambda x: x.score, reverse=True)
-    return [(str(item.metadata['task'])) for item in sorted_results]
+    return [{'task':str(item.metadata['task']),'result':str(item.metadata['result'])} for item in sorted_results]
 
 # Add the first task
 first_task = {
@@ -161,7 +165,7 @@ while True:
         enriched_result = {'data': result}  # This is where you should enrich the result if needed
         result_id = f"result_{task['task_id']}"
         vector = enriched_result['data']  # extract the actual result from the dictionary
-        index.upsert([(result_id, get_ada_embedding(vector),{"task":task['task_name'],"result":result})])
+        index.upsert([(result_id, get_ada_embedding(task['task_name']),{"task":task['task_name'],"result":result})])
 
     # Step 3: Create new tasks and reprioritize task list
     new_tasks = task_creation_agent(OBJECTIVE,enriched_result, task["task_name"], [t["task_name"] for t in task_list])
