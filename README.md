@@ -1,5 +1,12 @@
-#Important
+# Important
 This program was written in Python3.11->It does not work on the latest version of Python and other versions are untested. 
+
+# Setup
+1. Download [Python 3.11](https://www.python.org/downloads/release/python-3110/) if you don't already have it
+2. Set shebang line to python interpreter location.
+3. Download requirements with pip, `pip3 install -r requirements.txt`
+4. Sign up for a [pinecone API key]([url](https://www.pinecone.io/)
+5. Run the program and have fun! 
 
 # BabyAGI4free
 A clone of BabyAGI that utilizes g4f (for gpt4 access), sentence_transformers (for lightweight sentence embedding), and pinecone (cloud vector database) to create a free-to-use version of BabyAGI. If good response, will try making free BabyCoder.
