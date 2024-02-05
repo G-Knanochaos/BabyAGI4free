@@ -2,7 +2,7 @@
 This program was written in Python3.11->It does not work on the latest version of Python and other versions are untested. 
 
 # BabyAGI4free
-A clone of BabyAGI that utilizes g4f, sentence_transformers, and pinecone to create a free-to-use version of BabyAGI. If good response, will try making free BabyCoder.
+A clone of BabyAGI that utilizes g4f (for gpt4 access), sentence_transformers (for lightweight sentence embedding), and pinecone (cloud vector database) to create a free-to-use version of BabyAGI. If good response, will try making free BabyCoder.
 
 Current Major Issues:
 - No Stop Condition
