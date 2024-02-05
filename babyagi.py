@@ -1,6 +1,8 @@
+#!C:\Program Files\Python311\python.exe
+
 print("Program Starting!")
 from pinecone import Pinecone, PodSpec
-
+from config import * #define PINECONE_API_KEY in this file
 
 OBJECTIVE = "Do cutting-edge research on AI as a solution to climate change."
 YOUR_FIRST_TASK = "Develop a task list. Do not include any other text."
@@ -10,7 +12,6 @@ model = SentenceTransformer("all-MiniLM-L12-v2")
 
 #Set API Keys
 OPENAI_API_KEY = "" #we no longer need closedAI
-PINECONE_API_KEY = input("What is your Pinecone API_KEY") #https://docs.pinecone.io/docs/overview
 PINECONE_ENVIRONMENT =  "us-west1-gcp" #Pinecone Environment (eg. "us-east1-gcp")
 
 import time
@@ -103,14 +104,14 @@ def prioritization_agent(this_task_id:int):
 
 def execution_agent(objective:str,task: str) -> str:
     #context = context_agent(index="quickstart", query="my_search_query", n=5)
-    context=context_agent(query=task, n=1)
+    context=context_agent(query=task, n=3)
     try:
         context = context[0]
     except:
         context = {'task':"No previously completed tasks",'result':"No previous results"}
     print("\n*******RELEVANT CONTEXT******\n")
     print(context)
-    prompt = f"You are an execution agent on a team tasked with the following objective: '{objective}'. The most relevant task that has already been completed was: '{context['task']}'. Here is the result of that task '{context['result']}'. Complete your task: {task}\nResponse:"
+    prompt = f"You are an execution agent on a team tasked with the following objective: '{objective}'. The most relevant tasks that have already been completed are: '{context['task']}'. Here are the results of those tasks '{context['result']}'. Complete your task: {task}\nResponse:"
     while True:
         try:
             response = ChatCompletion.create(
